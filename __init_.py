@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from bs4 import BeautifulSoup
 import requests
+import uvicorn
 
 app = FastAPI()
 
@@ -249,18 +250,7 @@ async def get_exportacao_data():
         # Retorna uma mensagem de erro se a requisição falhar
         return {"error": "Falha ao buscar dados da API da Embrapa."}
 
-
-# Rota para documentação OpenAPI
-@app.get("/docs")
-async def get_docs():
-    return {"message": "Acesse /docs para a documentação OpenAPI"}
-
-# Rota para documentação Redoc
-@app.get("/redoc")
-async def get_redoc():
-    return {"message": "Acesse /redoc para a documentação Redoc"}
-
-# Rota de exemplo
+# Rota principal
 @app.get("/")
 async def root():
     return {
@@ -278,7 +268,7 @@ async def get_docs():
 async def get_redoc():
     return {"message": "Acesse /redoc para a documentação Redoc"}
 
-# Uso local para testar na máquina. Apenas rode o arquivo e acesse via postman http://localhost:3000/main
+# Uso local para testar na máquina. Apenas rode o arquivo e acesse via postman http://localhost:3000/{rota}
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="localhost", port=3000)
