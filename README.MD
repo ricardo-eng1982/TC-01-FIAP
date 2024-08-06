@@ -36,3 +36,10 @@ A API possui vários endpoints que permitem acessar dados em formato JSON, extra
 
 
 ![img_2.png](img_2.png)
+
+
+# Pontos de Melhoria.
+
+* Formartar as casas decimais da resposta
+* Agrupar por sub-títulos (objeto dentro de outro objeto Json) de acordo com a tabela da Embrapa.
+* Isolar a API da lógica de extração de dados, deixando código mais limpo e responsabilidades bem definidas.
