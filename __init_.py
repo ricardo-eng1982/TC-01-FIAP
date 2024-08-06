@@ -96,12 +96,54 @@ async def get_processamento_data():
         return results
     else:
         # Retorna uma mensagem de erro se a requisição falhar
-        return {"error": "Falha ao buscar dados da API ''Produção'' da Embrapa."}
+        return {"error": "Falha ao buscar dados da API ''Processamento'' da Embrapa."}
 
 # Endpoint para dados de comercialização
 @app.get("/comercializacao")
 async def get_comercializacao_data():
-    return fetch_embrapa_data("04")
+    # URL para a API da Embrapa
+    url = f"http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_04"
+    # Faz uma requisição GET para a URL
+    response = requests.get(url)
+
+    # Verifica se a requisição foi bem-sucedida
+    if response.status_code == 200:
+        # Obtém o conteúdo HTML da resposta
+        html = response.text
+        # Usa BeautifulSoup para analisar o HTML
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # Encontra todas as tabelas com a classe 'tb_base tb_dados'
+        tables = soup.find_all('table', class_='tb_base tb_dados')
+
+        results = []  # Lista para armazenar os resultados extraídos
+
+        # Itera sobre cada tabela encontrada
+        for table in tables:
+            # Encontra o corpo da tabela
+            tbody = table.find('tbody')
+            if tbody:
+                # Itera sobre cada linha da tabela
+                for row in tbody.find_all('tr'):
+                    # Encontra todas as células da linha
+                    cols = row.find_all('td')
+                    if len(cols) == 2:
+                        # Extrai o texto das células e limpa espaços
+                        produto = cols[0].get_text(strip=True)
+                        quantidade = cols[1].get_text(strip=True).replace('.', '').replace(',', '.')
+                        # Verifica se a quantidade é um número válido
+                        if quantidade.isdigit() or quantidade == '-':
+                            # Adiciona o produto e quantidade à lista de resultados
+                            results.append({
+                                "Produto": produto,
+                                "Quantidade(L.)": int(quantidade) if quantidade.isdigit() else None
+                            })
+
+        # Retorna a lista de resultados
+        return results
+    else:
+        # Retorna uma mensagem de erro se a requisição falhar
+        return {"error": "Falha ao buscar dados da API ''Comercialização'' da Embrapa."}
 
 # Endpoint para dados de importação
 @app.get("/importacao")
