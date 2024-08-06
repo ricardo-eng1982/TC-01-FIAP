@@ -41,8 +41,8 @@ async def get_producao_data():
                         if quantidade.isdigit() or quantidade == '-':
                             # Adiciona o produto e quantidade à lista de resultados
                             results.append({
-                                "Produto": produto,
-                                "Quantidade": int(quantidade) if quantidade.isdigit() else None
+                                "produto": produto,
+                                "quantidade": int(quantidade) if quantidade.isdigit() else None
                             })
 
         # Retorna a lista de resultados
@@ -88,8 +88,8 @@ async def get_processamento_data():
                         if quantidade.isdigit() or quantidade == '-':
                             # Adiciona o produto e quantidade à lista de resultados
                             results.append({
-                                "Cultivar": produto,
-                                "Quantidade (Kg)": int(quantidade) if quantidade.isdigit() else None
+                                "cultivar": produto,
+                                "quantidade_Kg": int(quantidade) if quantidade.isdigit() else None
                             })
 
         # Retorna a lista de resultados
@@ -135,8 +135,8 @@ async def get_comercializacao_data():
                         if quantidade.isdigit() or quantidade == '-':
                             # Adiciona o produto e quantidade à lista de resultados
                             results.append({
-                                "Produto": produto,
-                                "Quantidade(L.)": int(quantidade) if quantidade.isdigit() else None
+                                "produto": produto,
+                                "quantidade(L.)": int(quantidade) if quantidade.isdigit() else None
                             })
 
         # Retorna a lista de resultados
@@ -148,12 +148,106 @@ async def get_comercializacao_data():
 # Endpoint para dados de importação
 @app.get("/importacao")
 async def get_importacao_data():
-    return fetch_embrapa_data("05")
+    # URL para a API da Embrapa
+    url = f"http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_05"
+    # Faz uma requisição GET para a URL
+    response = requests.get(url)
+
+    # Verifica se a requisição foi bem-sucedida
+    if response.status_code == 200:
+        # Obtém o conteúdo HTML da resposta
+        html = response.text
+        # Usa BeautifulSoup para analisar o HTML
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # Encontra todas as tabelas com a classe 'tb_base tb_dados'
+        tables = soup.find_all('table', class_='tb_base tb_dados')
+
+        results = []  # Lista para armazenar os resultados extraídos
+
+        # Itera sobre cada tabela encontrada
+        for table in tables:
+            # Encontra o corpo da tabela
+            tbody = table.find('tbody')
+            if tbody:
+                # Itera sobre cada linha da tabela
+                for row in tbody.find_all('tr'):
+                    # Encontra todas as células da linha
+                    cols = row.find_all('td')
+                    if len(cols) == 3:
+                        # Extrai o texto das células e limpa espaços
+                        pais = cols[0].get_text(strip=True)
+                        quantidade = cols[1].get_text(strip=True).replace('.', '').replace(',', '.')
+                        valor = cols[2].get_text(strip=True).replace('.', '').replace(',', '.')
+
+                        # Verifica se a quantidade é um número válido
+                        quantidade = float(quantidade) if quantidade.replace('.', '', 1).isdigit() else None
+                        valor = float(valor) if valor.replace('.', '', 1).isdigit() else None
+
+                        # Adiciona o país, quantidade e valor à lista de resultados
+                        results.append({
+                            "pais": pais,
+                            "quantidade_kg": quantidade,
+                            "valor_usd": valor
+                        })
+
+        # Retorna a lista de resultados
+        return results
+    else:
+        # Retorna uma mensagem de erro se a requisição falhar
+        return {"error": "Falha ao buscar dados da API da Embrapa."}
 
 # Endpoint para dados de exportação
 @app.get("/exportacao")
 async def get_exportacao_data():
-    return fetch_embrapa_data("06")
+    # URL para a API da Embrapa
+    url = f"http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_06"
+    # Faz uma requisição GET para a URL
+    response = requests.get(url)
+
+    # Verifica se a requisição foi bem-sucedida
+    if response.status_code == 200:
+        # Obtém o conteúdo HTML da resposta
+        html = response.text
+        # Usa BeautifulSoup para analisar o HTML
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # Encontra todas as tabelas com a classe 'tb_base tb_dados'
+        tables = soup.find_all('table', class_='tb_base tb_dados')
+
+        results = []  # Lista para armazenar os resultados extraídos
+
+        # Itera sobre cada tabela encontrada
+        for table in tables:
+            # Encontra o corpo da tabela
+            tbody = table.find('tbody')
+            if tbody:
+                # Itera sobre cada linha da tabela
+                for row in tbody.find_all('tr'):
+                    # Encontra todas as células da linha
+                    cols = row.find_all('td')
+                    if len(cols) == 3:
+                        # Extrai o texto das células e limpa espaços
+                        pais = cols[0].get_text(strip=True)
+                        quantidade = cols[1].get_text(strip=True).replace('.', '').replace(',', '.')
+                        valor = cols[2].get_text(strip=True).replace('.', '').replace(',', '.')
+
+                        # Verifica se a quantidade é um número válido
+                        quantidade = float(quantidade) if quantidade.replace('.', '', 1).isdigit() else None
+                        valor = float(valor) if valor.replace('.', '', 1).isdigit() else None
+
+                        # Adiciona o país, quantidade e valor à lista de resultados
+                        results.append({
+                            "pais": pais,
+                            "quantidade_kg": quantidade,
+                            "valor_usd": valor
+                        })
+
+        # Retorna a lista de resultados
+        return results
+    else:
+        # Retorna uma mensagem de erro se a requisição falhar
+        return {"error": "Falha ao buscar dados da API da Embrapa."}
 
 
 # Rota para documentação OpenAPI
