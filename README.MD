@@ -21,7 +21,7 @@ A API possui vários endpoints que permitem acessar dados em formato JSON, extra
 1. Clone este repositório dentro da pasta de destino escolhida:
 
    ```bash
-   git clone https://github.com/seu_usuario/seu_repositorio.git
+   git clone https://github.com/ricardo-eng1982/TC-01-FIAP
    
 2. Abra o IDE, e no terminal, navegue até a pasta que você clonou repositório, e rode o seguinte comando:
    
